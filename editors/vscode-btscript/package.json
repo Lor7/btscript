@@ -1,0 +1,44 @@
+{
+  "name": "btscript-syntax",
+  "displayName": "BTScript Language Support",
+  "description": "Rich syntax highlighting and language support for BTScript Behavior Trees (.tree), including composites, decorators, blackboard variables, and compiler directives.",
+  "version": "1.0.0",
+  "publisher": "lor7",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "btscript",
+    "behavior-tree",
+    "behaviour-tree",
+    "game-ai",
+    "ai",
+    "syntax"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "btscript",
+        "aliases": [
+          "BTScript",
+          "btscript",
+          "tree"
+        ],
+        "extensions": [
+          ".tree"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "btscript",
+        "scopeName": "source.tree",
+        "path": "./syntaxes/tree.tmLanguage.json"
+      }
+    ]
+  }
+}

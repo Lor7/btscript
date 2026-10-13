@@ -1,0 +1,7 @@
+// Arbor V: Architecture & Modularity (Subtree Definition)
+tree CombatSkills(targetEnemy) {
+    sequence {
+        action: aimAt(targetEnemy)
+        action: fireWeapon(targetEnemy)
+    }
+}

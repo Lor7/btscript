@@ -1,0 +1,14 @@
+// Arbor IV: Dataflow (Blackboard & Parameters)
+tree CombatAI(patrolSpeed = 3.5, maxChaseDistance = 50.0) {
+    blackboard {
+        $target = none,
+        $targetVisible = false
+    }
+
+    sequence {
+        action: scanForPlayer(maxChaseDistance) -> $target
+        condition: hasTarget($target)
+        condition: isTargetVisible($targetVisible)
+        action: chaseTarget($target, patrolSpeed)
+    }
+}

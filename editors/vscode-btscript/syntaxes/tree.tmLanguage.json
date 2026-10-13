@@ -1,0 +1,85 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "BTScript",
+  "scopeName": "source.tree",
+  "fileTypes": [
+    "tree"
+  ],
+  "patterns": [
+    {
+      "name": "comment.line.number-sign.tree",
+      "match": "#.*$"
+    },
+    {
+      "name": "comment.line.double-slash.tree",
+      "match": "//.*$"
+    },
+    {
+      "name": "invalid.illegal.typo.tree",
+      "match": "@enabled\\b|@disabled\\b"
+    },
+    {
+      "name": "keyword.control.directive.tree",
+      "match": "@(enable|disable|lang|import|werror)\\b"
+    },
+    {
+      "name": "support.constant.directive-target.tree",
+      "match": "\\b(types|type|arity|arities|warnings|warning|werror|warnings-as-errors|stub|stubs)\\b"
+    },
+    {
+      "name": "support.constant.target-lang.tree",
+      "match": "\\b(python|lua|json|xml|mermaid|ascii)\\b"
+    },
+    {
+      "name": "keyword.control.tree.tree",
+      "match": "\\b(tree|subtree)\\b"
+    },
+    {
+      "name": "storage.modifier.memory.tree",
+      "match": "\\b(stateful|stateless)\\b"
+    },
+    {
+      "name": "entity.name.type.composite.tree",
+      "match": "\\b(sequence|selector|parallel)\\b"
+    },
+    {
+      "name": "storage.type.leaf.tree",
+      "match": "\\b(action|condition|decorator)\\b"
+    },
+    {
+      "name": "constant.language.decorator-prop.tree",
+      "match": "\\b(inverter|force_success|force_failure|repeat|retry|timeout|delay|cooldown)\\b"
+    },
+    {
+      "name": "keyword.operator.sugar.tree",
+      "match": "(->|!|/|\\\\|\\||\\+|-{1,2}|=)"
+    },
+    {
+      "name": "constant.language.boolean.tree",
+      "match": "\\b(true|false|none|null|nil|undefined|default)\\b"
+    },
+    {
+      "name": "string.quoted.double.tree",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.tree",
+          "match": "\\\\."
+        }
+      ]
+    },
+    {
+      "name": "constant.numeric.tree",
+      "match": "\\b[0-9]+(\\.[0-9]+)?\\b"
+    },
+    {
+      "name": "entity.name.function.call.tree",
+      "match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)(?=\\s*\\()"
+    },
+    {
+      "name": "variable.other.tree",
+      "match": "\\$[a-zA-Z_][a-zA-Z0-9_]*"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "btscript"
+version = "0.1.0"
+description = "A lightweight Behavior Tree DSL with static validation and multi-target transpilation (Python, Lua, JSON, XML, Mermaid, ASCII)."
+readme = "readme.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Lorenzo (Lor7)" }]
+keywords = ["behavior-tree", "behaviour-tree", "dsl", "game-ai", "robotics", "ai", "transpiler"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Compilers",
+    "Topic :: Games/Entertainment",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+btscript = "btscript.main:cli"
+bts = "btscript.main:cli"
+
+[project.urls]
+Homepage = "https://github.com/lor7/btscript"
+Repository = "https://github.com/lor7/btscript"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["btscript*"]
+
+[tool.setuptools.package-data]
+"btscript.runtimes.lua" = ["*.lua"]
+"btscript.runtimes.python" = ["*.py"]
+"btscript.editors.vscode-btscript" = ["*"]
+"btscript.editors.vscode-btscript.syntaxes" = ["*"]

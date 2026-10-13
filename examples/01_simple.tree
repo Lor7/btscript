@@ -1,0 +1,7 @@
+// Arbor I: Primitive Trees (Sequences & Actions)
+tree HelloBot {
+    sequence {
+        action: sayHello()
+        action: wanderAround()
+    }
+}

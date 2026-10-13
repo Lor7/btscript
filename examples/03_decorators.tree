@@ -1,0 +1,20 @@
+// Arbor III: Execution Modifiers (Decorators & Stateful Memory)
+tree PatrolBot {
+    stateful sequence {
+        decorator: retry(3) {
+            action: findTarget()
+        }
+
+        decorator: delay(2.5) {
+            action: scanArea()
+        }
+
+        decorator: inverter {
+            condition: isLowHealth()
+        }
+
+        decorator: repeat(5) {
+            action: walkNextWaypoint()
+        }
+    }
+}

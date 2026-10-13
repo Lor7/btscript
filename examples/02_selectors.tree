@@ -1,0 +1,11 @@
+// Arbor II: Decision Flow (Fallbacks & Conditions)
+tree GuardBot {
+    selector {
+        sequence {
+            condition: isEnemyVisible()
+            condition: isEnemyInRange(10.0)
+            action: attackEnemy()
+        }
+        action: patrolWaypoints()
+    }
+}

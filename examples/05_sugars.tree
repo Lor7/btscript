@@ -1,0 +1,14 @@
+// Arbor VI: Expressive Shorthands (Syntactic Sugar)
+tree InfiltratorBot {
+    selector {
+        // Inline preconditions
+        sequence [isArmed(), hasAmmo(10)] {
+            condition: !isAlarmTriggered()
+            action: --3 hackTerminal()
+            action: /grabIntel()
+        }
+
+        // Chained fallbacks
+        action: sprintToCover() | walkToCover() | crawlToCover()
+    }
+}

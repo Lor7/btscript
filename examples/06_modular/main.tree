@@ -1,0 +1,16 @@
+// Arbor V: Architecture & Modularity (Main Tree with @import)
+@import: "skills.tree"
+
+tree MainAgent {
+    blackboard {
+        $enemy = none
+    }
+
+    selector {
+        sequence {
+            action: detectEnemy() -> $enemy
+            subtree: CombatSkills($enemy)
+        }
+        action: idle()
+    }
+}
