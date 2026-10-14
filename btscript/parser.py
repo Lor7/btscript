@@ -16,15 +16,24 @@ from .nodes import (
 )
 
 
+class ParseError(Exception):
+    """Raised when parsing fails due to syntax or grammatical errors."""
+    def __init__(self, message: str, token: Token = None, file_path: str = ""):
+        self.raw_message = message
+        self.token = token
+        self.file_path = file_path
+        super().__init__(message)
+
+
 class Parser:
     """Parses a BTScript source file into an Abstract Syntax Tree (AST)."""
     
-    def __init__(self, file_path, imported_files=None):
+    def __init__(self, file_path, imported_files = None):
         self.file_path = os.path.abspath(file_path)
         self.tree = None
-        with open(file_path, 'r') as file:
+        with open(file_path, 'r', encoding = "utf-8") as file:
             self.content = file.read()
-        self.lexer = Lexer(self.content)
+        self.lexer = Lexer(self.content, file_path = self.file_path)
         self.tokens = self.lexer.tokenize()
         self.cursor = 0
 
@@ -73,7 +82,7 @@ class Parser:
         return errormsg
 
     def error(self, token: Token, message: str):
-        raise Exception(self.format_error(token, message))
+        raise ParseError(self.format_error(token, message), token = token, file_path = self.file_path)
 
     def consume(self, expected_type, expected_value=None) -> Token:
         tok = self.current()
@@ -135,7 +144,7 @@ class Parser:
                 else:
                     self.error(target_tok, f"Unknown target '{target}' for '@enable'. Valid options: arity, types, warnings, werror, stub")
             elif cmd == "lang":
-                valid_langs = {"python", "lua", "json", "xml", "mermaid"}
+                valid_langs = {"python", "lua", "json", "xml", "mermaid", "ascii"}
                 if target.lower() not in valid_langs:
                     self.error(target_tok, f"Unsupported language '{target}' in '@lang'. Valid options: {', '.join(sorted(valid_langs))}")
                 directives["lang"] = target.lower()
@@ -176,12 +185,23 @@ class Parser:
                 param_str = p_tok.value
                 if self.match("="):
                     self.consume("=")
+                    is_neg = False
+                    if self.match("-"):
+                        self.consume("-")
+                        is_neg = True
                     val_tok = self.current()
-                    if val_tok.type == TokenType.STRING or val_tok.value == "STRING":
-                        param_str += f'="{val_tok.value}"'
+                    if is_neg:
+                        if val_tok.type in (TokenType.NUMBER, "NUMBER") or getattr(val_tok.type, "value", None) == "NUMBER":
+                            param_str += f"=-{val_tok.value}"
+                            self.advance()
+                        else:
+                            self.error(val_tok, f"Unary '-' can only precede numeric values, got '{val_tok.value}'")
                     else:
-                        param_str += f"={val_tok.value}"
-                    self.advance()
+                        if val_tok.type == TokenType.STRING or val_tok.value == "STRING":
+                            param_str += f'="{val_tok.value}"'
+                        else:
+                            param_str += f"={val_tok.value}"
+                        self.advance()
                 params.append(param_str)
                 if self.match(","):
                     self.consume(",")
@@ -203,18 +223,23 @@ class Parser:
                     self.consume("-")
                     is_negative = True
                 val_tok = self.current()
-                if val_tok.type in (TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.NONE):
-                    if val_tok.type == TokenType.STRING:
-                        val = f'"{val_tok.value}"'
-                    elif is_negative and val_tok.type == TokenType.NUMBER:
+                if is_negative:
+                    if val_tok.type in (TokenType.NUMBER, "NUMBER") or getattr(val_tok.type, "value", None) == "NUMBER":
                         val = f"-{val_tok.value}"
+                        self.advance()
+                    else:
+                        self.error(val_tok, f"Unary '-' can only precede numeric values in blackboard, got '{val_tok.value}'")
+                elif val_tok.type in (TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.NONE) or \
+                     getattr(val_tok.type, "value", None) in ("NUMBER", "STRING", "BOOLEAN", "NONE"):
+                    if val_tok.type == TokenType.STRING or val_tok.value == "STRING":
+                        val = f'"{val_tok.value}"'
                     else:
                         val = val_tok.value
-                    default_bb[var_tok.value] = val
-                    self.bwrite[var_tok.value] = var_tok
                     self.advance()
                 else:
                     self.error(val_tok, f"Expected literal value for blackboard variable, got '{val_tok.value}'")
+                default_bb[var_tok.value] = val
+                self.bwrite[var_tok.value] = var_tok
                 if self.match(","):
                     self.consume(",")
             self.consume("}")
@@ -295,6 +320,10 @@ class Parser:
                     self.consume("$")
                     var_tok = self.consume("IDENT")
                     subtree_args.append(f"${var_tok.value}")
+                elif self.match("-"):
+                    self.consume("-")
+                    num_tok = self.consume("NUMBER")
+                    subtree_args.append(f"-{num_tok.value}")
                 elif arg_tok.type in (TokenType.IDENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.KEYWORD) or \
                    arg_tok.type.value in ("IDENT", "NUMBER", "STRING", "BOOLEAN", "NONE"):
                     if arg_tok.type == TokenType.STRING or arg_tok.value == "STRING":
@@ -323,10 +352,18 @@ class Parser:
         decorator_args = []
         if self.match("("):
             self.consume("(")
-            decorator_args.append(self.consume("NUMBER").value)
+            is_neg = False
+            if self.match("-"):
+                self.consume("-")
+                is_neg = True
+            num_tok = self.consume("NUMBER")
+            val = f"-{num_tok.value}" if is_neg else num_tok.value
+            decorator_args.append(val)
             self.consume(")")
         self.consume("{")
-        child_node = self.parse_node()
+        child_node = None
+        if not self.match("}"):
+            child_node = self.parse_node()
         self.consume("}")
         return DecoratorNode(property = property_tok.value,
                             child = child_node,
@@ -401,6 +438,10 @@ class Parser:
                     var_name = var_tok.value
                     self.bread[var_name] = var_tok
                     args.append(f"${var_name}")
+                elif self.match("-"):
+                    self.consume("-")
+                    num_tok = self.consume("NUMBER")
+                    args.append(f"-{num_tok.value}")
                 elif arg_tok.type in [
                                     TokenType.IDENT,
                                     TokenType.NUMBER,

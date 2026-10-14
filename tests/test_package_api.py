@@ -1,7 +1,7 @@
 import pytest
 import btscript
 from btscript import (
-    Lexer, Parser, Validator, SemanticError,
+    Lexer, LexError, Parser, ParseError, Validator, SemanticError,
     Transpiler, PyTranspiler, LuaTranspiler,
     JSONTranspiler, XMLTranspiler, MermaidTranspiler, AsciiTranspiler,
     Status, TreeRoot, SequenceNode, ActionNode
@@ -10,8 +10,11 @@ from btscript import (
 def test_btscript_package_exports():
     assert btscript.__version__ == "0.1.0"
     assert Lexer is not None
+    assert LexError is not None
     assert Parser is not None
+    assert ParseError is not None
     assert Validator is not None
+    assert SemanticError is not None
     assert Transpiler is not None
     assert Status.SUCCESS.value == "SUCCESS"
 

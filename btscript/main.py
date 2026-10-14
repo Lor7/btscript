@@ -14,7 +14,8 @@ import shutil
 import sys
 from pathlib import Path
 
-from .parser import Parser
+from .lexer import LexError
+from .parser import Parser, ParseError
 from .validator import Validator, SemanticError
 from .transpilers import Transpiler
 from .utils import inspect_tree, render_ascii_tree
@@ -127,34 +128,56 @@ def cli(argv = None):
             return 0
 
         target_lang = args.lang or DIRECTIVE.get("lang") or "ascii"
-        logging.info(f"Transpiling to {target_lang}...")
-        transpiler = Transpiler(AST, target_lang, DIRECTIVE)
         ext = {"python": "py", "lua": "lua", "json": "json", "xml": "xml", "mermaid": "mmd", "ascii": "txt"}[target_lang]
-        outputFileName = args.output or (args.inputfile[:-4] + ext)
-        with open(outputFileName, "w") as f:
-            f.write(transpiler.transpile())
-        logging.info(f"Successfully generated '{outputFileName}'")
+        default_output = str(Path(args.inputfile).with_suffix(f".{ext}"))
+        outputFileName = args.output or default_output
 
-        out_dir = os.path.dirname(os.path.abspath(outputFileName))
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        runtime_sources = {
-            "python": ("runtime.py", os.path.join(script_dir, "runtimes", "python", "runtime.py")),
-            "lua": ("runtime.lua", os.path.join(script_dir, "runtimes", "lua", "runtime.lua")),
-        }
-        if target_lang in runtime_sources:
-            runtime_name, src = runtime_sources[target_lang]
-            dst = os.path.join(out_dir, runtime_name)
-            if os.path.abspath(src) != os.path.abspath(dst):
-                shutil.copy2(src, dst)
-                logging.info(f"Successfully copied the runtime")
+        # For ASCII visualization: only save to file if explicitly requested via -o
+        # or if @lang: ascii was explicitly declared in the file directives.
+        save_to_file = True
+        if target_lang == "ascii":
+            if args.output:
+                save_to_file = True
+            elif DIRECTIVE.get("lang") == "ascii" and not args.lang:
+                save_to_file = True
+            else:
+                save_to_file = False
+
+        if save_to_file:
+            logging.info(f"Transpiling to {target_lang}...")
+            transpiler = Transpiler(AST, target_lang, DIRECTIVE)
+            with open(outputFileName, "w", encoding = "utf-8") as f:
+                f.write(transpiler.transpile())
+            logging.info(f"Successfully generated '{outputFileName}'")
+
+            out_dir = os.path.dirname(os.path.abspath(outputFileName))
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            runtime_sources = {
+                "python": ("runtime.py", os.path.join(script_dir, "runtimes", "python", "runtime.py")),
+                "lua": ("runtime.lua", os.path.join(script_dir, "runtimes", "lua", "runtime.lua")),
+            }
+            if target_lang in runtime_sources:
+                runtime_name, src = runtime_sources[target_lang]
+                dst = os.path.join(out_dir, runtime_name)
+                if os.path.abspath(src) != os.path.abspath(dst):
+                    shutil.copy2(src, dst)
+                    logging.info(f"Successfully copied the runtime")
+        else:
+            logging.info("Terminal visualization complete.")
 
         return 0
 
+    except LexError as e:
+        logging.error(f"Lexical Error:{e}")
+        sys.exit(1)
+    except ParseError as e:
+        logging.error(f"Parse Error:{e}")
+        sys.exit(1)
     except SemanticError as e:
-        logging.error(f"SemanticError:\n\t{e}")
+        logging.error(f"Semantic Error:\n\t{e}")
         sys.exit(1)
     except Exception as e:
-        logging.error(f"Syntax / Transpilation Error:\n\t{e}")
+        logging.error(f"Error:\n\t{e}")
         if args.verbose:
             import traceback
             traceback.print_exc()

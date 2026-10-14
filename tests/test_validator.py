@@ -237,3 +237,49 @@ def test_blackboard_defaults_validation_unused(parse_src):
     assert "Variable 'unused_var' is declared/written but never read (unused)" in v.warnings[0]
 
 
+def test_decorator_warnings(parse_src):
+    # Test missing child warning
+    code_missing = """
+    tree DecTest {
+        sequence {
+            decorator: repeat(3) {
+            }
+        }
+    }
+    """
+    ast_m, dirs_m = parse_src(code_missing)
+    v_m = Validator(ast_m, dirs_m)
+    v_m.validate()
+    assert any("has no child node" in w for w in v_m.warnings)
+
+    # Test non-positive args warning on repeat(0), retry(-1), timeout(0), delay(-2), cooldown(0)
+    code_nonpos = """
+    tree DecTest2 {
+        sequence {
+            decorator: repeat(0) {
+                action: step()
+            }
+            decorator: timeout(0) {
+                action: step()
+            }
+            decorator: delay(-1) {
+                action: step()
+            }
+            decorator: cooldown(0) {
+                action: step()
+            }
+        }
+    }
+    """
+    ast_np, dirs_np = parse_src(code_nonpos)
+    v_np = Validator(ast_np, dirs_np)
+    v_np.validate()
+    assert len(v_np.errors) == 0
+    warnings = "\n".join(v_np.warnings)
+    assert "Decorator 'repeat' argument '0' is <= 0" in warnings
+    assert "Decorator 'timeout' argument '0' is <= 0" in warnings
+    assert "Decorator 'delay' argument '-1' is <= 0" in warnings
+    assert "Decorator 'cooldown' argument '0' is <= 0" in warnings
+
+
+

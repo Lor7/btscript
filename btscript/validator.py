@@ -53,7 +53,7 @@ class Validator:
             return ""
         if file_path not in self._file_cache:
             try:
-                with open(file_path, "r") as f:
+                with open(file_path, "r", encoding = "utf-8") as f:
                     self._file_cache[file_path] = f.read().splitlines()
             except Exception:
                 return ""
@@ -154,10 +154,25 @@ class Validator:
 
     def check_DecoratorNode(self, node):
         if not node.child:
-            self.report_error(node, f"Decorator with property '{node.property}' has no child node")
+            self.report_warning(node, f"Decorator '{node.property}' has no child node")
+
         valid_decorators = {"inverter", "retry", "repeat", "force_success", "force_failure", "timeout", "delay", "cooldown"}
         if node.property not in valid_decorators:
             self.report_error(node, f"Decorator has unknown property: '{node.property}'")
+
+        # Warn if repeat, retry, timeout, delay, cooldown receive arguments <= 0
+        if node.property in {"repeat", "retry", "timeout", "delay", "cooldown"}:
+            for arg in getattr(node, "args", []):
+                try:
+                    val = float(arg)
+                    if val <= 0:
+                        self.report_warning(
+                            node,
+                            f"Decorator '{node.property}' argument '{arg}' is <= 0 (expected positive count/duration)"
+                        )
+                except ValueError:
+                    pass
+
         if node.child:
             if node.property == "inverter" and isinstance(node.child, DecoratorNode):
                 if node.child.property == "inverter":

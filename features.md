@@ -193,3 +193,10 @@ BTScript provides an official TextMate extension for Visual Studio Code, VSCodiu
 - **Brackets & Formatting**: Auto-closing quotes, matched braces, and automatic indentation rules for Behavior Tree nesting.
 - **Automated Installation**: Run `bts --install-vscode` or `python3 scripts/install_vscode.py` to copy into `~/.vscode/extensions/vscode-btscript`.
 
+---
+
+## Documentation Links
+
+- **[Readme (`readme.md`)](readme.md)**: Project overview, quickstart, and CLI guide.
+- **[User Guide (`user_guide.md`)](user_guide.md)**: Language Tour (Arbor I – VII), runtime integration, and dry-run verification mode.
+

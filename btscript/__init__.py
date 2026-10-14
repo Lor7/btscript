@@ -21,8 +21,8 @@ from .nodes import (
     DecoratorNode,
     SubtreeNode,
 )
-from .lexer import Lexer
-from .parser import Parser
+from .lexer import Lexer, LexError
+from .parser import Parser, ParseError
 from .validator import Validator, SemanticError
 from .transpilers import (
     Transpiler,
@@ -64,7 +64,9 @@ __all__ = [
     "DecoratorNode",
     "SubtreeNode",
     "Lexer",
+    "LexError",
     "Parser",
+    "ParseError",
     "Validator",
     "SemanticError",
     "Transpiler",

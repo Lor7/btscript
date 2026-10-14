@@ -201,3 +201,74 @@ def test_blackboard_defaults_parsing(parse_src):
         "offset": "-10",
     }
 
+
+def test_negative_numbers_in_arguments_and_ascii_lang(parse_src):
+    code = """
+    @lang: ascii
+
+    tree Child(val = -5) {
+        sequence {
+            action: work(val)
+        }
+    }
+
+    tree Main(speed = -1.5, count = -42) {
+        blackboard {
+            $delta = -0.016,
+            $min_x = -100
+        }
+        sequence {
+            condition: isBelow(-50)
+            action: applyForce(-10, -3.14)
+            subtree: Child(-20)
+        }
+    }
+    """
+    ast, dirs = parse_src(code)
+    assert dirs["lang"] == "ascii"
+
+    child_tree = ast[0]
+    assert child_tree.params == ["val=-5"]
+
+    main_tree = ast[1]
+    assert main_tree.params == ["speed=-1.5", "count=-42"]
+    assert main_tree.blackboard["delta"] == "-0.016"
+    assert main_tree.blackboard["min_x"] == "-100"
+
+    seq = main_tree.children[0]
+    cond = seq.children[0]
+    assert cond.args == ["-50"]
+
+    act = seq.children[1]
+    assert act.args == ["-10", "-3.14"]
+
+    sub = seq.children[2]
+    assert sub.args == ["-20"]
+
+
+def test_lex_error_and_parse_error(parse_src):
+    import pytest
+    from btscript.lexer import Lexer, LexError
+    from btscript.parser import ParseError
+
+    # LexError on unknown character
+    lexer_bad_char = Lexer("tree T { ~ }", file_path = "test.tree")
+    with pytest.raises(LexError) as exc_char:
+        lexer_bad_char.tokenize()
+    assert "Unknown character '~'" in str(exc_char.value)
+    assert "test.tree" in str(exc_char.value)
+    assert "^" in str(exc_char.value)
+
+    # LexError on unterminated string
+    lexer_bad_str = Lexer('tree T { action: a("unterminated) }', file_path = "test.tree")
+    with pytest.raises(LexError) as exc_str:
+        lexer_bad_str.tokenize()
+    assert "Unterminated string literal" in str(exc_str.value)
+
+    # ParseError on unexpected token
+    with pytest.raises(ParseError) as exc_parse:
+        parse_src("tree T { invalid_token }")
+    assert "Unexpected token 'invalid_token'" in str(exc_parse.value)
+
+
+
