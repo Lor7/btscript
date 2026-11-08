@@ -323,6 +323,46 @@ local status = tree:tick(ctx, 0.016)
 print("Tree status: " .. status)
 ```
 
+### Running in Rust
+
+The Rust transpiler generates zero-overhead, memory-safe code utilizing the built-in Rust runtime (`runtime.rs`). It produces:
+1. **A Behavior Tree builder function**: `pub fn build_<tree_name>() -> Box<dyn BehaviourNode>`
+2. **A Context Trait**: `pub trait <Tree>Context` defining exact method signatures for every action and condition.
+3. **A Mock Context**: `pub struct Mock<Tree>Context` for immediate execution and unit testing.
+
+```rust
+// In your Rust project (e.g., src/main.rs)
+mod guard;
+use guard::*;
+use runtime::*;
+
+// 1. (Optional) Custom context implementing GuardBotContext
+struct MyAgent {
+    pub enemy_visible: bool,
+}
+
+impl GuardBotContext for MyAgent {
+    fn is_enemy_visible(&mut self) -> bool {
+        self.enemy_visible
+    }
+    fn attack_enemy(&mut self) -> Status {
+        println!("Attacking target!");
+        Status::Success
+    }
+    // ...
+}
+
+fn main() {
+    // 2. Build the tree
+    let mut tree = build_guard_bot();
+    let mut ctx = Context::new();
+
+    // 3. Tick with simulation delta time (dt) or real-time clock
+    let status = tree.tick(&mut ctx, Some(0.016));
+    println!("Tree status: {:?}", status);
+}
+```
+
 ---
 
 ## Dry-Run & Semantic Verification Mode (`--check`)

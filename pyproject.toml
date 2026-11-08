@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "btscript"
 version = "0.1.0"
-description = "A lightweight Behavior Tree DSL with static validation and multi-target transpilation (Python, Lua, JSON, XML, Mermaid, ASCII)."
+description = "A lightweight Behavior Tree DSL with static validation and multi-target transpilation (Python, Lua, Rust, JSON, XML, Mermaid, ASCII)."
 readme = "readme.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }

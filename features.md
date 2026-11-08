@@ -22,7 +22,7 @@ BTScript is a declarative domain-specific language (DSL) for authoring, verifyin
 [ 4. Semantic Validator ]    Arity checks, type inference, cycle detection, dataflow analysis
        │
        ▼
-[ 5. Transpilation Layer ]   Code generation for Python, Lua, XML, JSON, Mermaid, ASCII
+[ 5. Transpilation Layer ]   Code generation for Python, Lua, Rust, XML, JSON, Mermaid, ASCII
        │
        ▼
 Target Output & Runtimes     Generates code and bundles runtime engines
@@ -173,7 +173,7 @@ The semantic validator ([`Validator`](file:///home/lor7/programming/tree_script/
 
 ## 7. Simulation Time (Delta Time `dt`)
 
-Both Python and Lua runtimes support decoupled simulation time:
+Both Python, Lua, and Rust runtimes support decoupled simulation time:
 ```python
 # Realtime execution (relies on monotonic clock)
 tree.tick(ctx)

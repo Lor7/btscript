@@ -733,6 +733,29 @@ def test_blackboard_defaults_export_targets(parse_src):
     assert "$speed=5.0" in mermaid
 
 
+def test_rust_transpiler_basic(parse_src):
+    from btscript.transpilers import RustTranspiler
+    code = """
+    tree PatrolBot {
+        stateful sequence {
+            condition: isAlert()
+            action: moveTo(10.5, 20.0)
+        }
+    }
+    """
+    ast, dirs = parse_src(code)
+    rust_code = RustTranspiler(ast, directive=dirs).transpile()
+
+    assert "pub fn build_patrol_bot() -> Box<dyn BehaviourNode>" in rust_code
+    assert "Box::new(Sequence::new(" in rust_code
+    assert "true," in rust_code  # stateful
+    assert "pub trait PatrolBotContext" in rust_code
+    assert "fn is_alert(&mut self) -> bool;" in rust_code
+    assert "fn move_to(&mut self, arg1: f64, arg2: f64) -> Status;" in rust_code
+    assert "pub struct MockPatrolBotContext;" in rust_code
+
+
+
 
 
 

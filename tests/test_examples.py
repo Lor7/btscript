@@ -24,9 +24,12 @@ def test_all_examples_validate_and_transpile():
         validator.validate()
         assert len(validator.errors) == 0
 
-        # Transpile to Python and Lua
+        # Transpile to Python, Lua, and Rust
         py_code = Transpiler(ast, lang="python", directive=directives).transpile()
         assert len(py_code) > 0
 
         lua_code = Transpiler(ast, lang="lua", directive=directives).transpile()
         assert len(lua_code) > 0
+
+        rust_code = Transpiler(ast, lang="rust", directive=directives).transpile()
+        assert len(rust_code) > 0

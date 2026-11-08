@@ -2,7 +2,7 @@ import pytest
 import btscript
 from btscript import (
     Lexer, LexError, Parser, ParseError, Validator, SemanticError,
-    Transpiler, PyTranspiler, LuaTranspiler,
+    Transpiler, PyTranspiler, LuaTranspiler, RustTranspiler,
     JSONTranspiler, XMLTranspiler, MermaidTranspiler, AsciiTranspiler,
     Status, TreeRoot, SequenceNode, ActionNode
 )

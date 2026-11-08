@@ -16,9 +16,9 @@ Behavior Trees are the de-facto industry standard for modeling autonomous decisi
 **BTScript eliminates these compromises:**
 - **Human-First Syntax**: Offers a clean, indented DSL with intuitive primitives (`sequence`, `selector`, `action`, `condition`, `decorator`), stateful memory keywords, and expressive syntactic shorthands.
 - **Deep Compile-Time Verification**: Runs rigorous static analysis before any code is generated—detecting recursive subtree cycles, dead code, arity mismatches, type conflicts, and uninitialized blackboard variables.
-- **Multi-Target Transpilation**: Author once in BTScript, compile directly to clean, idiomatic **Python**, **Lua**, **XML**, **JSON AST**, **Mermaid flowcharts**, or terminal **ASCII** trees.
+- **Multi-Target Transpilation**: Author once in BTScript, compile directly to clean, idiomatic **Python**, **Lua**, **Rust**, **XML**, **JSON AST**, **Mermaid flowcharts**, or terminal **ASCII** trees.
 - **Zero Runtime Dependencies**: The compiler runs entirely on standard Python (>= 3.10) with zero external dependencies.
-- **Simulation-Ready**: Built-in Python and Lua runtime engines support decoupled simulation time (`dt`) for deterministic game loops and headless unit testing.
+- **Simulation-Ready**: Built-in Python, Lua, and Rust runtime engines support decoupled simulation time (`dt`) for deterministic game loops and headless unit testing.
 - **Editor Tooling**: Official VS Code extension (`vscode-btscript`) with TextMate syntax highlighting, bracket matching, and error checking.
 
 ---
@@ -26,34 +26,26 @@ Behavior Trees are the de-facto industry standard for modeling autonomous decisi
 ## A Quick Look
 
 ```btscript
-// patrol.tree - Autonomous Guard AI
 tree GuardBot {
-    blackboard {
-        $patrolSpeed = 3.5,
-        $chaseSpeed = 7.0,
-        $target = none
-    }
+    blackboard { $speed = 4.0, $target = "none" }
 
-    // High-priority combat fallback, resumes patrol when safe
     selector {
-        // Combat Branch: attack if enemy is spotted and alive
-        sequence [hasTarget($target), isAlive($target)] {
+        // Combat: engage when enemy acquired
+        sequence [hasEnemy($target)] {
             action: faceTarget($target)
-            action: attack($target, $chaseSpeed)
+            action: attackTarget($target)
         }
 
-        // Search Branch: look for targets or alert nearby allies
+        // Search: acquire target and alert squad
         sequence {
-            action: findTarget("player") -> $target
-            action: alertAllies($target)
+            action: findEnemy("player") -> $target
+            action: alertSquad($target)
         }
 
-        // Default Branch: repeat patrol waypoints with delay
-        -4 sequence {
-            action: walkToNextWaypoint($patrolSpeed)
-            decorator: delay(1.5) {
-                action: scanSurroundings()
-            }
+        // Patrol: roam perimeter and scan
+        sequence {
+            action: walkWaypoints($speed)
+            decorator: delay(1.5) { action: scanArea() }
         }
     }
 }
@@ -168,7 +160,7 @@ code = transpiler.transpile()
 
 ## Documentation & References
 
-- **[User Guide (`user_guide.md`)](user_guide.md)**: A complete walkthrough of language features (Arbor I – VII), stateful vs stateless memory, blackboard dataflow, syntactic sugars, Python/Lua runtime integration, and dry-run verification.
+- **[User Guide (`user_guide.md`)](user_guide.md)**: A complete walkthrough of language features (Arbor I – VII), stateful vs stateless memory, blackboard dataflow, syntactic sugars, Python/Lua/Rust runtime integration, and dry-run verification.
 - **[Technical Specification (`features.md`)](features.md)**: In-depth technical architecture, AST node definitions, desugaring transformation rules, cycle detection algorithms, and validator diagnostics.
 
 ---
