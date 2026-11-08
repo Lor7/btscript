@@ -35,7 +35,7 @@ def build_argparser() -> argparse.ArgumentParser:
     argparser.add_argument("-o", "--output", help = "Path to the output file to write")
     argparser.add_argument(
         "-l", "--lang",
-        choices = ["python", "lua", "json", "xml", "mermaid", "ascii"],
+        choices = ["python", "lua", "rust", "json", "xml", "mermaid", "ascii"],
         default = None,
         help = "Target language to transpile to (default: file directive or ascii)"
     )
@@ -128,7 +128,7 @@ def cli(argv = None):
             return 0
 
         target_lang = args.lang or DIRECTIVE.get("lang") or "ascii"
-        ext = {"python": "py", "lua": "lua", "json": "json", "xml": "xml", "mermaid": "mmd", "ascii": "txt"}[target_lang]
+        ext = {"python": "py", "lua": "lua", "rust": "rs", "json": "json", "xml": "xml", "mermaid": "mmd", "ascii": "txt"}[target_lang]
         default_output = str(Path(args.inputfile).with_suffix(f".{ext}"))
         outputFileName = args.output or default_output
 
@@ -155,6 +155,7 @@ def cli(argv = None):
             runtime_sources = {
                 "python": ("runtime.py", os.path.join(script_dir, "runtimes", "python", "runtime.py")),
                 "lua": ("runtime.lua", os.path.join(script_dir, "runtimes", "lua", "runtime.lua")),
+                "rust": ("runtime.rs", os.path.join(script_dir, "runtimes", "rust", "runtime.rs")),
             }
             if target_lang in runtime_sources:
                 runtime_name, src = runtime_sources[target_lang]

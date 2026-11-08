@@ -28,7 +28,7 @@
     },
     {
       "name": "support.constant.target-lang.tree",
-      "match": "\\b(python|lua|json|xml|mermaid|ascii)\\b"
+      "match": "\\b(python|lua|rust|json|xml|mermaid|ascii)\\b"
     },
     {
       "name": "keyword.control.tree.tree",

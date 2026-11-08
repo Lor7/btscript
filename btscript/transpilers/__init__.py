@@ -1,5 +1,6 @@
 from .python import PyTranspiler, PyStubTranspiler
 from .lua import LuaTranspiler, LuaStubTranspiler
+from .rust import RustTranspiler, RustStubTranspiler
 from .mermaid import MermaidTranspiler
 from .json_tree import JSONTranspiler
 from .xml_tree import XMLTranspiler
@@ -9,6 +10,7 @@ class Transpiler:
     TRANSPILERS = {
         "python": PyTranspiler,
         "lua": LuaTranspiler,
+        "rust": RustTranspiler,
         "json": JSONTranspiler,
         "xml": XMLTranspiler,
         "mermaid": MermaidTranspiler,
@@ -25,6 +27,6 @@ class Transpiler:
             raise ValueError(f"Unsupported language: {self.lang}")
 
         transpiler_cls = self.TRANSPILERS[self.lang]
-        if self.lang in ("python", "lua"):
+        if self.lang in ("python", "lua", "rust"):
             return transpiler_cls(self.ast, directive=self.directive).transpile()
         return transpiler_cls(self.ast).transpile()

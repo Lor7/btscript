@@ -144,7 +144,7 @@ class Parser:
                 else:
                     self.error(target_tok, f"Unknown target '{target}' for '@enable'. Valid options: arity, types, warnings, werror, stub")
             elif cmd == "lang":
-                valid_langs = {"python", "lua", "json", "xml", "mermaid", "ascii"}
+                valid_langs = {"python", "lua", "rust", "json", "xml", "mermaid", "ascii"}
                 if target.lower() not in valid_langs:
                     self.error(target_tok, f"Unsupported language '{target}' in '@lang'. Valid options: {', '.join(sorted(valid_langs))}")
                 directives["lang"] = target.lower()
